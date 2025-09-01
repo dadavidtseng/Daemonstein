@@ -6,8 +6,8 @@
 #pragma once
 
 #include "Engine/Core/StringUtils.hpp"
-#include "Engine/Core/VertexUtils.hpp"
-#include "Engine/Core/Vertex_PCUTBN.hpp"
+#include "Engine/Renderer/VertexUtils.hpp"
+#include "Engine/Renderer/Vertex_PCUTBN.hpp"
 #include "Engine/Math/IntVec2.hpp"
 #include "Engine/Math/RaycastUtils.hpp"
 #include "Engine/Renderer/VertexBuffer.hpp"

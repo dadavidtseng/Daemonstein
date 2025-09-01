@@ -40,20 +40,20 @@ void App::Startup()
 
     // Create All Engine Subsystems
     sEventSystemConfig eventSystemConfig;
-    g_theEventSystem = new EventSystem(eventSystemConfig);
-    g_theEventSystem->SubscribeEventCallbackFunction("OnCloseButtonClicked", OnCloseButtonClicked);
-    g_theEventSystem->SubscribeEventCallbackFunction("quit", OnCloseButtonClicked);
+    g_eventSystem = new EventSystem(eventSystemConfig);
+    g_eventSystem->SubscribeEventCallbackFunction("OnCloseButtonClicked", OnCloseButtonClicked);
+    g_eventSystem->SubscribeEventCallbackFunction("quit", OnCloseButtonClicked);
 
     sInputSystemConfig inputConfig;
-    g_theInput = new InputSystem(inputConfig);
+    g_input = new InputSystem(inputConfig);
 
     sWindowConfig windowConfig;
     windowConfig.m_aspectRatio = 2.f;
-    windowConfig.m_inputSystem = g_theInput;
+    windowConfig.m_inputSystem = g_input;
     windowConfig.m_windowTitle = "Doomenstein";
     g_theWindow                = new Window(windowConfig);
 
-    sRenderConfig renderConfig;
+    sRendererConfig renderConfig;
     renderConfig.m_window = g_theWindow;
     g_theRenderer         = new Renderer(renderConfig);
 
@@ -75,23 +75,23 @@ void App::Startup()
     devConsoleConfig.m_defaultRenderer = g_theRenderer;
     devConsoleConfig.m_defaultFontName = "SquirrelFixedFont";
     devConsoleConfig.m_defaultCamera   = m_devConsoleCamera;
-    g_theDevConsole                    = new DevConsole(devConsoleConfig);
+    g_devConsole                    = new DevConsole(devConsoleConfig);
 
-    g_theDevConsole->AddLine(DevConsole::INFO_MAJOR, "Controls");
-    g_theDevConsole->AddLine(DevConsole::INFO_MINOR, "(Mouse) Aim");
-    g_theDevConsole->AddLine(DevConsole::INFO_MINOR, "(W/A)   Move");
-    g_theDevConsole->AddLine(DevConsole::INFO_MINOR, "(S/D)   Strafe");
-    g_theDevConsole->AddLine(DevConsole::INFO_MINOR, "(Z/C)   Elevate");
-    g_theDevConsole->AddLine(DevConsole::INFO_MINOR, "(Shift) Sprint");
-    g_theDevConsole->AddLine(DevConsole::INFO_MINOR, "(1)     Pistol");
-    g_theDevConsole->AddLine(DevConsole::INFO_MINOR, "(2)     Plasma Rifle");
-    g_theDevConsole->AddLine(DevConsole::INFO_MINOR, "(P)     Pause");
-    g_theDevConsole->AddLine(DevConsole::INFO_MINOR, "(O)     Step Frame");
-    g_theDevConsole->AddLine(DevConsole::INFO_MINOR, "(F)     Toggle Free Camera");
-    g_theDevConsole->AddLine(DevConsole::INFO_MINOR, "(N)     Possess Next Actor");
-    g_theDevConsole->AddLine(DevConsole::INFO_MINOR, "(~)     Toggle Dev Console");
-    g_theDevConsole->AddLine(DevConsole::INFO_MINOR, "(ESC)   Exit Game");
-    g_theDevConsole->AddLine(DevConsole::INFO_MINOR, "(SPACE) Start Game");
+    g_devConsole->AddLine(DevConsole::INFO_MAJOR, "Controls");
+    g_devConsole->AddLine(DevConsole::INFO_MINOR, "(Mouse) Aim");
+    g_devConsole->AddLine(DevConsole::INFO_MINOR, "(W/A)   Move");
+    g_devConsole->AddLine(DevConsole::INFO_MINOR, "(S/D)   Strafe");
+    g_devConsole->AddLine(DevConsole::INFO_MINOR, "(Z/C)   Elevate");
+    g_devConsole->AddLine(DevConsole::INFO_MINOR, "(Shift) Sprint");
+    g_devConsole->AddLine(DevConsole::INFO_MINOR, "(1)     Pistol");
+    g_devConsole->AddLine(DevConsole::INFO_MINOR, "(2)     Plasma Rifle");
+    g_devConsole->AddLine(DevConsole::INFO_MINOR, "(P)     Pause");
+    g_devConsole->AddLine(DevConsole::INFO_MINOR, "(O)     Step Frame");
+    g_devConsole->AddLine(DevConsole::INFO_MINOR, "(F)     Toggle Free Camera");
+    g_devConsole->AddLine(DevConsole::INFO_MINOR, "(N)     Possess Next Actor");
+    g_devConsole->AddLine(DevConsole::INFO_MINOR, "(~)     Toggle Dev Console");
+    g_devConsole->AddLine(DevConsole::INFO_MINOR, "(ESC)   Exit Game");
+    g_devConsole->AddLine(DevConsole::INFO_MINOR, "(SPACE) Start Game");
 
     sAudioSystemConfig audioConfig;
     g_theAudio = new AudioSystem(audioConfig);
@@ -99,12 +99,12 @@ void App::Startup()
     sLightConfig constexpr lightConfig;
     g_theLightSubsystem = new LightSubsystem(lightConfig);
 
-    g_theEventSystem->Startup();
+    g_eventSystem->Startup();
     g_theWindow->Startup();
     g_theRenderer->Startup();
     DebugRenderSystemStartup(debugConfig);
-    g_theDevConsole->StartUp();
-    g_theInput->Startup();
+    g_devConsole->StartUp();
+    g_input->Startup();
     g_theAudio->Startup();
     g_theLightSubsystem->StartUp();
 
@@ -130,8 +130,8 @@ void App::Shutdown()
 
     g_theLightSubsystem->ShutDown();
     g_theAudio->Shutdown();
-    g_theInput->Shutdown();
-    g_theDevConsole->Shutdown();
+    g_input->Shutdown();
+    g_devConsole->Shutdown();
 
     delete m_devConsoleCamera;
     m_devConsoleCamera = nullptr;
@@ -139,7 +139,7 @@ void App::Shutdown()
     DebugRenderSystemShutdown();
     g_theRenderer->Shutdown();
     g_theWindow->Shutdown();
-    g_theEventSystem->Shutdown();
+    g_eventSystem->Shutdown();
 
     delete g_theAudio;
     g_theAudio = nullptr;
@@ -150,8 +150,8 @@ void App::Shutdown()
     delete g_theWindow;
     g_theWindow = nullptr;
 
-    delete g_theInput;
-    g_theInput = nullptr;
+    delete g_input;
+    g_input = nullptr;
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -195,12 +195,12 @@ STATIC void App::RequestQuit()
 //----------------------------------------------------------------------------------------------------
 void App::BeginFrame() const
 {
-    g_theEventSystem->BeginFrame();
+    g_eventSystem->BeginFrame();
     g_theWindow->BeginFrame();
     g_theRenderer->BeginFrame();
     DebugRenderBeginFrame();
-    g_theDevConsole->BeginFrame();
-    g_theInput->BeginFrame();
+    g_devConsole->BeginFrame();
+    g_input->BeginFrame();
     g_theAudio->BeginFrame();
     g_theLightSubsystem->BeginFrame();
 }
@@ -232,19 +232,19 @@ void App::Render() const
     g_theRenderer->BeginCamera(*m_devConsoleCamera);
     AABB2 const box = AABB2(Vec2::ZERO, Vec2(1600.f, 30.f));
 
-    g_theDevConsole->Render(box);
+    g_devConsole->Render(box);
     g_theRenderer->EndCamera(*m_devConsoleCamera);
 }
 
 //----------------------------------------------------------------------------------------------------
 void App::EndFrame() const
 {
-    g_theEventSystem->EndFrame();
+    g_eventSystem->EndFrame();
     g_theWindow->EndFrame();
     g_theRenderer->EndFrame();
     DebugRenderEndFrame();
-    g_theDevConsole->EndFrame();
-    g_theInput->EndFrame();
+    g_devConsole->EndFrame();
+    g_input->EndFrame();
     g_theAudio->EndFrame();
     g_theLightSubsystem->EndFrame();
 }
@@ -253,15 +253,15 @@ void App::EndFrame() const
 void App::UpdateCursorMode()
 {
     bool const doesWindowHasFocus   = GetActiveWindow() == g_theWindow->GetWindowHandle();
-    bool const shouldUsePointerMode = !doesWindowHasFocus || g_theDevConsole->IsOpen() || g_theGame->GetGameState() == eGameState::ATTRACT;
+    bool const shouldUsePointerMode = !doesWindowHasFocus || g_devConsole->IsOpen() || g_theGame->GetGameState() == eGameState::ATTRACT;
 
     if (shouldUsePointerMode == true)
     {
-        g_theInput->SetCursorMode(eCursorMode::POINTER);
+        g_input->SetCursorMode(eCursorMode::POINTER);
     }
     else
     {
-        g_theInput->SetCursorMode(eCursorMode::FPS);
+        g_input->SetCursorMode(eCursorMode::FPS);
     }
 }
 

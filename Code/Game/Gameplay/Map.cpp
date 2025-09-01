@@ -8,7 +8,7 @@
 #include "Engine/Core/EngineCommon.hpp"
 
 #include "Engine/Core/ErrorWarningAssert.hpp"
-#include "Engine/Core/Vertex_PCUTBN.hpp"
+#include "Engine/Renderer/Vertex_PCUTBN.hpp"
 #include "Engine/Input/InputSystem.hpp"
 #include "Engine/Math/FloatRange.hpp"
 #include "Engine/Math/MathUtils.hpp"
@@ -299,57 +299,57 @@ void Map::Update(float const deltaSeconds)
 //----------------------------------------------------------------------------------------------------
 void Map::UpdateFromKeyboard()
 {
-    if (g_theInput->WasKeyJustPressed(KEYCODE_I))
+    if (g_input->WasKeyJustPressed(KEYCODE_I))
     {
         DebugAddMessage(Stringf("Sun Direction: (%.2f, %.2f, %.2f)", m_sunDirection.x, m_sunDirection.y, m_sunDirection.z), 5.f);
     }
 
-    if (g_theInput->WasKeyJustPressed(KEYCODE_F2))
+    if (g_input->WasKeyJustPressed(KEYCODE_F2))
     {
         m_sunDirection.x -= 1.f;
         DebugAddMessage(Stringf("Sun Direction: (%.2f, %.2f, %.2f)", m_sunDirection.x, m_sunDirection.y, m_sunDirection.z), 5.f);
     }
 
-    if (g_theInput->WasKeyJustPressed(KEYCODE_F3))
+    if (g_input->WasKeyJustPressed(KEYCODE_F3))
     {
         m_sunDirection.x += 1.f;
         DebugAddMessage(Stringf("Sun Direction: (%.2f, %.2f, %.2f)", m_sunDirection.x, m_sunDirection.y, m_sunDirection.z), 5.f);
     }
 
-    if (g_theInput->WasKeyJustPressed(KEYCODE_F4))
+    if (g_input->WasKeyJustPressed(KEYCODE_F4))
     {
         m_sunDirection.y -= 1.f;
         DebugAddMessage(Stringf("Sun Direction: (%.2f, %.2f, %.2f)", m_sunDirection.x, m_sunDirection.y, m_sunDirection.z), 5.f);
     }
 
-    if (g_theInput->WasKeyJustPressed(KEYCODE_F5))
+    if (g_input->WasKeyJustPressed(KEYCODE_F5))
     {
         m_sunDirection.y += 1.f;
         DebugAddMessage(Stringf("Sun Direction: (%.2f, %.2f, %.2f)", m_sunDirection.x, m_sunDirection.y, m_sunDirection.z), 5.f);
     }
 
-    if (g_theInput->WasKeyJustPressed(KEYCODE_F6))
+    if (g_input->WasKeyJustPressed(KEYCODE_F6))
     {
         m_sunIntensity -= 0.05f;
         m_sunIntensity = GetClampedZeroToOne(m_sunIntensity);
         DebugAddMessage(Stringf("Sun Intensity: (%.2f)", m_sunIntensity), 5.f);
     }
 
-    if (g_theInput->WasKeyJustPressed(KEYCODE_F7))
+    if (g_input->WasKeyJustPressed(KEYCODE_F7))
     {
         m_sunIntensity += 0.05f;
         m_sunIntensity = GetClampedZeroToOne(m_sunIntensity);
         DebugAddMessage(Stringf("Sun Intensity: (%.2f)", m_sunIntensity), 5.f);
     }
 
-    if (g_theInput->WasKeyJustPressed(KEYCODE_F8))
+    if (g_input->WasKeyJustPressed(KEYCODE_F8))
     {
         m_ambientIntensity -= 0.05f;
         m_ambientIntensity = GetClampedZeroToOne(m_ambientIntensity);
         DebugAddMessage(Stringf("Ambient Intensity: (%.2f)", m_ambientIntensity), 5.f);
     }
 
-    if (g_theInput->WasKeyJustPressed(KEYCODE_F9))
+    if (g_input->WasKeyJustPressed(KEYCODE_F9))
     {
         m_ambientIntensity += 0.05f;
         m_ambientIntensity = GetClampedZeroToOne(m_ambientIntensity);

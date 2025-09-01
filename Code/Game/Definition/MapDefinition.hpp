@@ -4,7 +4,7 @@
 
 //----------------------------------------------------------------------------------------------------
 #pragma once
-#include "Engine/Core/Image.hpp"
+#include "Engine/Renderer/Image.hpp"
 #include "Engine/Core/XmlUtils.hpp"
 #include "Engine/Math/EulerAngles.hpp"
 #include "Engine/Math/Vec3.hpp"

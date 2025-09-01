@@ -176,12 +176,12 @@ void Game::UpdateFromKeyBoard()
 {
     if (m_currentGameState == eGameState::ATTRACT)
     {
-        if (g_theInput->WasKeyJustPressed(KEYCODE_ESC))
+        if (g_input->WasKeyJustPressed(KEYCODE_ESC))
         {
             App::RequestQuit();
         }
 
-        if (g_theInput->WasKeyJustPressed(KEYCODE_SPACE))
+        if (g_input->WasKeyJustPressed(KEYCODE_SPACE))
         {
             CreateLocalPlayer(0, eDeviceType::KEYBOARD_AND_MOUSE);
             ChangeState(eGameState::LOBBY);
@@ -195,7 +195,7 @@ void Game::UpdateFromKeyBoard()
 
     if (m_currentGameState == eGameState::LOBBY)
     {
-        if (g_theInput->WasKeyJustPressed(KEYCODE_SPACE))
+        if (g_input->WasKeyJustPressed(KEYCODE_SPACE))
         {
             PlaySoundClicked("Game.Common.Audio.ButtonClicked");
             if (m_localPlayerControllerList.size() == 1)
@@ -235,7 +235,7 @@ void Game::UpdateFromKeyBoard()
             }
         }
 
-        if (g_theInput->WasKeyJustPressed(KEYCODE_ESC))
+        if (g_input->WasKeyJustPressed(KEYCODE_ESC))
         {
             PlaySoundClicked("Game.Common.Audio.ButtonClicked");
             PlayerController const* localPlayerController = GetControllerByDeviceType(eDeviceType::KEYBOARD_AND_MOUSE);
@@ -255,7 +255,7 @@ void Game::UpdateFromKeyBoard()
 
     if (m_currentGameState == eGameState::INGAME)
     {
-        if (g_theInput->WasKeyJustPressed(KEYCODE_ESC))
+        if (g_input->WasKeyJustPressed(KEYCODE_ESC))
         {
             ChangeState(eGameState::ATTRACT);
             g_theAudio->StopSound(m_inGamePlaybackID);
@@ -269,22 +269,22 @@ void Game::UpdateFromKeyBoard()
             m_localPlayerControllerList.clear();
         }
 
-        if (g_theInput->WasKeyJustPressed(KEYCODE_P))
+        if (g_input->WasKeyJustPressed(KEYCODE_P))
         {
             m_gameClock->TogglePause();
         }
 
-        if (g_theInput->WasKeyJustPressed(KEYCODE_O))
+        if (g_input->WasKeyJustPressed(KEYCODE_O))
         {
             m_gameClock->StepSingleFrame();
         }
 
-        if (g_theInput->IsKeyDown(KEYCODE_T))
+        if (g_input->IsKeyDown(KEYCODE_T))
         {
             m_gameClock->SetTimeScale(0.1f);
         }
 
-        if (g_theInput->WasKeyJustReleased(KEYCODE_T))
+        if (g_input->WasKeyJustReleased(KEYCODE_T))
         {
             m_gameClock->SetTimeScale(1.f);
         }
@@ -294,7 +294,7 @@ void Game::UpdateFromKeyBoard()
 //----------------------------------------------------------------------------------------------------
 void Game::UpdateFromController()
 {
-    XboxController const& controller = g_theInput->GetController(0);
+    XboxController const& controller = g_input->GetController(0);
 
     if (!controller.IsConnected()) return;
 

@@ -117,13 +117,13 @@ eDeviceType PlayerController::GetInputDeviceType() const
 void PlayerController::UpdateFromKeyboard(float deltaSeconds)
 {
     if (m_deviceType == eDeviceType::CONTROLLER) return;
-    if (g_theInput->WasKeyJustPressed(KEYCODE_N))
+    if (g_input->WasKeyJustPressed(KEYCODE_N))
     {
         m_map->DebugPossessNext();
         m_isCameraMode = false;
     }
 
-    if (g_theInput->WasKeyJustPressed(KEYCODE_F))
+    if (g_input->WasKeyJustPressed(KEYCODE_F))
     {
         m_isCameraMode = !m_isCameraMode;
 
@@ -134,7 +134,7 @@ void PlayerController::UpdateFromKeyboard(float deltaSeconds)
         // possessedActor->m_isVisible = !possessedActor->m_isVisible;
     }
 
-    if (g_theInput->IsKeyDown(KEYCODE_LEFT_MOUSE))
+    if (g_input->IsKeyDown(KEYCODE_LEFT_MOUSE))
     {
         if (m_isCameraMode) return;
 
@@ -146,7 +146,7 @@ void PlayerController::UpdateFromKeyboard(float deltaSeconds)
         }
     }
 
-    Vec2 const cursorClientDelta = g_theInput->GetCursorClientDelta();
+    Vec2 const cursorClientDelta = g_input->GetCursorClientDelta();
 
     // if playerController is possessing a valid actor
     if (!m_actorHandle.IsValid()) return;
@@ -182,38 +182,38 @@ void PlayerController::UpdateFromKeyboard(float deltaSeconds)
         possessedActor->TurnInDirection(possessedActorOrientation);
 
 
-        if (g_theInput->WasKeyJustPressed(NUMCODE_1))
+        if (g_input->WasKeyJustPressed(NUMCODE_1))
         {
             possessedActor->SwitchInventory(0);
         }
 
-        if (g_theInput->WasKeyJustPressed(NUMCODE_2))
+        if (g_input->WasKeyJustPressed(NUMCODE_2))
         {
             possessedActor->SwitchInventory(1);
         }
 
-        if (g_theInput->IsKeyDown(KEYCODE_SHIFT))
+        if (g_input->IsKeyDown(KEYCODE_SHIFT))
         {
             speed = possessedActor->m_definition->m_runSpeed;
         }
 
-        if (g_theInput->IsKeyDown(KEYCODE_W))
+        if (g_input->IsKeyDown(KEYCODE_W))
         {
             possessedActor->MoveInDirection(forward, speed);
             possessedActor->PlayAnimationByName("Walk");
         }
 
-        if (g_theInput->IsKeyDown(KEYCODE_S))
+        if (g_input->IsKeyDown(KEYCODE_S))
         {
             possessedActor->MoveInDirection(-forward, speed);
         }
 
-        if (g_theInput->IsKeyDown(KEYCODE_A))
+        if (g_input->IsKeyDown(KEYCODE_A))
         {
             possessedActor->MoveInDirection(left, speed);
         }
 
-        if (g_theInput->IsKeyDown(KEYCODE_D))
+        if (g_input->IsKeyDown(KEYCODE_D))
         {
             possessedActor->MoveInDirection(-left, speed);
         }
@@ -231,14 +231,14 @@ void PlayerController::UpdateFromKeyboard(float deltaSeconds)
         // Vec2 const leftStickInput = controller.GetLeftStick().GetPosition();
         // m_velocity += Vec3(leftStickInput.y, -leftStickInput.x, 0.f) * moveSpeed;
 
-        if (g_theInput->IsKeyDown(KEYCODE_W)) m_velocity += forward * moveSpeed;
-        if (g_theInput->IsKeyDown(KEYCODE_S)) m_velocity -= forward * moveSpeed;
-        if (g_theInput->IsKeyDown(KEYCODE_A)) m_velocity += left * moveSpeed;
-        if (g_theInput->IsKeyDown(KEYCODE_D)) m_velocity -= left * moveSpeed;
-        if (g_theInput->IsKeyDown(KEYCODE_Z)) m_velocity -= Vec3(0.f, 0.f, 1.f) * moveSpeed;
-        if (g_theInput->IsKeyDown(KEYCODE_C)) m_velocity += Vec3(0.f, 0.f, 1.f) * moveSpeed;
+        if (g_input->IsKeyDown(KEYCODE_W)) m_velocity += forward * moveSpeed;
+        if (g_input->IsKeyDown(KEYCODE_S)) m_velocity -= forward * moveSpeed;
+        if (g_input->IsKeyDown(KEYCODE_A)) m_velocity += left * moveSpeed;
+        if (g_input->IsKeyDown(KEYCODE_D)) m_velocity -= left * moveSpeed;
+        if (g_input->IsKeyDown(KEYCODE_Z)) m_velocity -= Vec3(0.f, 0.f, 1.f) * moveSpeed;
+        if (g_input->IsKeyDown(KEYCODE_C)) m_velocity += Vec3(0.f, 0.f, 1.f) * moveSpeed;
 
-        if (g_theInput->IsKeyDown(KEYCODE_SHIFT)) deltaSeconds *= 10.f;
+        if (g_input->IsKeyDown(KEYCODE_SHIFT)) deltaSeconds *= 10.f;
 
         m_position += m_velocity * deltaSeconds;
 
@@ -247,8 +247,8 @@ void PlayerController::UpdateFromKeyboard(float deltaSeconds)
         m_orientation.m_pitchDegrees = GetClamped(m_orientation.m_pitchDegrees, -85.f, 85.f);
 
 
-        // if (g_theInput->IsKeyDown(KEYCODE_Q)) m_orientation.m_rollDegrees = 90.f;
-        // if (g_theInput->IsKeyDown(KEYCODE_E)) m_orientation.m_rollDegrees = -90.f;
+        // if (g_input->IsKeyDown(KEYCODE_Q)) m_orientation.m_rollDegrees = 90.f;
+        // if (g_input->IsKeyDown(KEYCODE_E)) m_orientation.m_rollDegrees = -90.f;
 
         m_orientation.m_rollDegrees = GetClamped(m_orientation.m_rollDegrees, -45.f, 45.f);
     }
@@ -259,7 +259,7 @@ void PlayerController::UpdateFromController(float deltaSeconds)
     if (g_theGame->GetGameState() != eGameState::INGAME)
     return;
 
-const XboxController& controller = g_theInput->GetController(0);
+const XboxController& controller = g_input->GetController(0);
 float                 speed      = m_speed;
 float                 turnRate   = m_turnRate;
 if (!m_isCameraMode)
