@@ -14,8 +14,8 @@ void PlaySoundClicked(char const* keyName)
     do
     {
         String const  soundFilePath = g_gameConfigBlackboard.GetValue(keyName, "DEFAULT");
-        SoundID const sound         = g_theAudio->CreateOrGetSound(soundFilePath, eAudioSystemSoundDimension::Sound2D);
-        g_theAudio->StartSound(sound, false, 1.f);
+        SoundID const sound         = g_audio->CreateOrGetSound(soundFilePath, eAudioSystemSoundDimension::Sound2D);
+        g_audio->StartSound(sound, false, 1.f);
     }
     while (false);
 }

@@ -28,7 +28,7 @@ PlayerController::PlayerController(Map* owner)
     m_worldCamera->SetOrthoGraphicView(Vec2(-1, -1), Vec2(1, 1));
     m_viewCamera         = new Camera();
     m_viewCamera->m_mode = Camera::eMode_Orthographic;
-    m_viewCamera->SetOrthoGraphicView(Vec2::ZERO, g_theGame->m_screenSpace.m_maxs); // TODO: use the normalized viewport
+    m_viewCamera->SetOrthoGraphicView(Vec2::ZERO, g_game->m_screenSpace.m_maxs); // TODO: use the normalized viewport
     m_speed    = g_gameConfigBlackboard.GetValue("playerSpeed", m_speed);
     m_turnRate = g_gameConfigBlackboard.GetValue("playerTurnRate", m_turnRate);
     // m_viewCamera->SetOrthoGraphicView(Vec2(0.f, 400.f), Vec2(1600.f, 800.f));
@@ -90,8 +90,8 @@ void PlayerController::Render() const
     // }
 
 
-    g_theRenderer->BeginCamera(*m_viewCamera);
-    if (g_theGame->GetGameState() != eGameState::INGAME) return;
+    g_renderer->BeginCamera(*m_viewCamera);
+    if (g_game->GetGameState() != eGameState::INGAME) return;
     if (!m_actorHandle.IsValid()) return;
     if (m_isCameraMode) return;
     Actor* possessActor = m_map->GetActorByHandle(m_actorHandle);
@@ -99,7 +99,7 @@ void PlayerController::Render() const
     {
         if (possessActor->m_currentWeapon) possessActor->m_currentWeapon->Render();
     }
-    g_theRenderer->EndCamera(*m_viewCamera);
+    g_renderer->EndCamera(*m_viewCamera);
 }
 
 eDeviceType PlayerController::SetInputDeviceType(eDeviceType newDeviceType)
@@ -256,7 +256,7 @@ void PlayerController::UpdateFromKeyboard(float deltaSeconds)
 
 void PlayerController::UpdateFromController(float deltaSeconds)
 {
-    if (g_theGame->GetGameState() != eGameState::INGAME)
+    if (g_game->GetGameState() != eGameState::INGAME)
     return;
 
 const XboxController& controller = g_input->GetController(0);
@@ -342,7 +342,7 @@ if (!m_isCameraMode)
 //----------------------------------------------------------------------------------------------------
 void PlayerController::UpdateWorldCamera()
 {
-    if (g_theGame->GetGameState() != eGameState::INGAME) return;
+    if (g_game->GetGameState() != eGameState::INGAME) return;
 
     Actor const* possessedActor = GetActor();
 
@@ -374,7 +374,7 @@ void PlayerController::UpdateWorldCamera()
         m_position          = Vec3(possessedActor->m_position.x, possessedActor->m_position.y, interpolate);
     }
 
-    m_viewCamera->SetOrthoGraphicView(g_theGame->m_screenSpace.m_mins, g_theGame->m_screenSpace.m_maxs);
+    m_viewCamera->SetOrthoGraphicView(g_game->m_screenSpace.m_mins, g_game->m_screenSpace.m_maxs);
     m_worldCamera->SetPosition(m_position);
     m_worldCamera->SetOrientation(m_orientation);
 

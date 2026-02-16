@@ -13,8 +13,8 @@ class Camera;
 class App
 {
 public:
-    App()  = default;
-    ~App() = default;
+    App() ;
+    ~App();
     void Startup();
     void Shutdown();
     void RunFrame();

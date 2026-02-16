@@ -4,113 +4,83 @@
 
 //----------------------------------------------------------------------------------------------------
 #include "Game/Framework/App.hpp"
-
+//----------------------------------------------------------------------------------------------------
+#include "Game/Framework/GameCommon.hpp"
+#include "Game/Gameplay/Game.hpp"
+#include "Game/Subsystem/Light/LightSubsystem.hpp"
+//----------------------------------------------------------------------------------------------------
 #include "Engine/Audio/AudioSystem.hpp"
 #include "Engine/Core/Clock.hpp"
 #include "Engine/Core/DevConsole.hpp"
+#include "Engine/Core/Engine.hpp"
 #include "Engine/Core/EngineCommon.hpp"
 #include "Engine/Core/ErrorWarningAssert.hpp"
 #include "Engine/Input/InputSystem.hpp"
-#include "Engine/Math/RandomNumberGenerator.hpp"
+#include "Engine/Platform/Window.hpp"
 #include "Engine/Renderer/BitmapFont.hpp"
 #include "Engine/Renderer/DebugRenderSystem.hpp"
 #include "Engine/Renderer/Renderer.hpp"
-#include "Engine/Platform/Window.hpp"
-#include "Game/Gameplay/Game.hpp"
-#include "Game/Framework/GameCommon.hpp"
-#include "Game/Subsystem/Light/LightSubsystem.hpp"
+#include "Engine/Resource/ResourceSubsystem.hpp"
 
 //----------------------------------------------------------------------------------------------------
-App*                   g_theApp            = nullptr;       // Created and owned by Main_Windows.cpp
-AudioSystem*           g_theAudio          = nullptr;       // Created and owned by the App
-BitmapFont*            g_theBitmapFont     = nullptr;       // Created and owned by the App
-Game*                  g_theGame           = nullptr;       // Created and owned by the App
-Renderer*              g_theRenderer       = nullptr;       // Created and owned by the App
-RandomNumberGenerator* g_theRNG            = nullptr;       // Created and owned by the App
-Window*                g_theWindow         = nullptr;       // Created and owned by the App
-LightSubsystem*        g_theLightSubsystem = nullptr;       // Created and owned by the App
+App*            g_app            = nullptr;       // Created and owned by Main_Windows.cpp
+Game*           g_game           = nullptr;       // Created and owned by the App
+LightSubsystem* g_lightSubsystem = nullptr;       // Created and owned by the App
 
 //----------------------------------------------------------------------------------------------------
 STATIC bool App::m_isQuitting = false;
 
 //----------------------------------------------------------------------------------------------------
+App::App()
+{
+    GEngine::Get().Construct();
+}
+
+//----------------------------------------------------------------------------------------------------
+App::~App()
+{
+    GEngine::Get().Destruct();
+}
+
+//----------------------------------------------------------------------------------------------------
 void App::Startup()
 {
+    GEngine::Get().Startup();
+
     LoadGameConfig("Data/GameConfig.xml");
 
-    // Create All Engine Subsystems
-    sEventSystemConfig eventSystemConfig;
-    g_eventSystem = new EventSystem(eventSystemConfig);
     g_eventSystem->SubscribeEventCallbackFunction("OnCloseButtonClicked", OnCloseButtonClicked);
     g_eventSystem->SubscribeEventCallbackFunction("quit", OnCloseButtonClicked);
 
-    sInputSystemConfig inputConfig;
-    g_input = new InputSystem(inputConfig);
+    // sDevConsoleConfig devConsoleConfig;
+    // devConsoleConfig.m_defaultRenderer = g_renderer;
+    // devConsoleConfig.m_defaultFontName = "SquirrelFixedFont";
+    // devConsoleConfig.m_defaultCamera   = m_devConsoleCamera;
+    // g_devConsole                       = new DevConsole(devConsoleConfig);
 
-    sWindowConfig windowConfig;
-    windowConfig.m_aspectRatio = 2.f;
-    windowConfig.m_inputSystem = g_input;
-    windowConfig.m_windowTitle = "Doomenstein";
-    g_theWindow                = new Window(windowConfig);
+    // g_devConsole->AddLine(DevConsole::INFO_MAJOR, "Controls");
+    // g_devConsole->AddLine(DevConsole::INFO_MINOR, "(Mouse) Aim");
+    // g_devConsole->AddLine(DevConsole::INFO_MINOR, "(W/A)   Move");
+    // g_devConsole->AddLine(DevConsole::INFO_MINOR, "(S/D)   Strafe");
+    // g_devConsole->AddLine(DevConsole::INFO_MINOR, "(Z/C)   Elevate");
+    // g_devConsole->AddLine(DevConsole::INFO_MINOR, "(Shift) Sprint");
+    // g_devConsole->AddLine(DevConsole::INFO_MINOR, "(1)     Pistol");
+    // g_devConsole->AddLine(DevConsole::INFO_MINOR, "(2)     Plasma Rifle");
+    // g_devConsole->AddLine(DevConsole::INFO_MINOR, "(P)     Pause");
+    // g_devConsole->AddLine(DevConsole::INFO_MINOR, "(O)     Step Frame");
+    // g_devConsole->AddLine(DevConsole::INFO_MINOR, "(F)     Toggle Free Camera");
+    // g_devConsole->AddLine(DevConsole::INFO_MINOR, "(N)     Possess Next Actor");
+    // g_devConsole->AddLine(DevConsole::INFO_MINOR, "(~)     Toggle Dev Console");
+    // g_devConsole->AddLine(DevConsole::INFO_MINOR, "(ESC)   Exit Game");
+    // g_devConsole->AddLine(DevConsole::INFO_MINOR, "(SPACE) Start Game");
 
-    sRendererConfig renderConfig;
-    renderConfig.m_window = g_theWindow;
-    g_theRenderer         = new Renderer(renderConfig);
-
-    sDebugRenderConfig debugConfig;
-    debugConfig.m_renderer = g_theRenderer;
-    debugConfig.m_fontName = "SquirrelFixedFont";
-
-    // Initialize devConsoleCamera
-    m_devConsoleCamera = new Camera();
-
-    Vec2 const  bottomLeft     = Vec2::ZERO;
-    float const screenSizeX    = g_gameConfigBlackboard.GetValue("screenSizeX", -1.f);
-    float const screenSizeY    = g_gameConfigBlackboard.GetValue("screenSizeY", -1.f);
-    Vec2 const  screenTopRight = Vec2(screenSizeX, screenSizeY);
-
-    m_devConsoleCamera->SetOrthoGraphicView(bottomLeft, screenTopRight);
-
-    sDevConsoleConfig devConsoleConfig;
-    devConsoleConfig.m_defaultRenderer = g_theRenderer;
-    devConsoleConfig.m_defaultFontName = "SquirrelFixedFont";
-    devConsoleConfig.m_defaultCamera   = m_devConsoleCamera;
-    g_devConsole                    = new DevConsole(devConsoleConfig);
-
-    g_devConsole->AddLine(DevConsole::INFO_MAJOR, "Controls");
-    g_devConsole->AddLine(DevConsole::INFO_MINOR, "(Mouse) Aim");
-    g_devConsole->AddLine(DevConsole::INFO_MINOR, "(W/A)   Move");
-    g_devConsole->AddLine(DevConsole::INFO_MINOR, "(S/D)   Strafe");
-    g_devConsole->AddLine(DevConsole::INFO_MINOR, "(Z/C)   Elevate");
-    g_devConsole->AddLine(DevConsole::INFO_MINOR, "(Shift) Sprint");
-    g_devConsole->AddLine(DevConsole::INFO_MINOR, "(1)     Pistol");
-    g_devConsole->AddLine(DevConsole::INFO_MINOR, "(2)     Plasma Rifle");
-    g_devConsole->AddLine(DevConsole::INFO_MINOR, "(P)     Pause");
-    g_devConsole->AddLine(DevConsole::INFO_MINOR, "(O)     Step Frame");
-    g_devConsole->AddLine(DevConsole::INFO_MINOR, "(F)     Toggle Free Camera");
-    g_devConsole->AddLine(DevConsole::INFO_MINOR, "(N)     Possess Next Actor");
-    g_devConsole->AddLine(DevConsole::INFO_MINOR, "(~)     Toggle Dev Console");
-    g_devConsole->AddLine(DevConsole::INFO_MINOR, "(ESC)   Exit Game");
-    g_devConsole->AddLine(DevConsole::INFO_MINOR, "(SPACE) Start Game");
-
-    sAudioSystemConfig audioConfig;
-    g_theAudio = new AudioSystem(audioConfig);
 
     sLightConfig constexpr lightConfig;
-    g_theLightSubsystem = new LightSubsystem(lightConfig);
+    g_lightSubsystem = new LightSubsystem(lightConfig);
 
-    g_eventSystem->Startup();
-    g_theWindow->Startup();
-    g_theRenderer->Startup();
-    DebugRenderSystemStartup(debugConfig);
-    g_devConsole->StartUp();
-    g_input->Startup();
-    g_theAudio->Startup();
-    g_theLightSubsystem->StartUp();
+    g_lightSubsystem->StartUp();
 
-    g_theBitmapFont = g_theRenderer->CreateOrGetBitmapFontFromFile("Data/Fonts/SquirrelFixedFont"); // DO NOT SPECIFY FILE .EXTENSION!!  (Important later on.)
-    g_theRNG        = new RandomNumberGenerator();
-    g_theGame       = new Game();
+    g_game     = new Game();
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -118,40 +88,14 @@ void App::Startup()
 //
 void App::Shutdown()
 {
-    // Destroy all Engine Subsystem
-    delete g_theGame;
-    g_theGame = nullptr;
+    GAME_SAFE_RELEASE(g_game);
 
-    delete g_theRNG;
-    g_theRNG = nullptr;
+    g_eventSystem->UnsubscribeEventCallbackFunction("quit", OnCloseButtonClicked);
+    g_eventSystem->UnsubscribeEventCallbackFunction("OnCloseButtonClicked", OnCloseButtonClicked);
 
-    delete g_theBitmapFont;
-    g_theBitmapFont = nullptr;
+    g_lightSubsystem->ShutDown();
 
-    g_theLightSubsystem->ShutDown();
-    g_theAudio->Shutdown();
-    g_input->Shutdown();
-    g_devConsole->Shutdown();
-
-    delete m_devConsoleCamera;
-    m_devConsoleCamera = nullptr;
-
-    DebugRenderSystemShutdown();
-    g_theRenderer->Shutdown();
-    g_theWindow->Shutdown();
-    g_eventSystem->Shutdown();
-
-    delete g_theAudio;
-    g_theAudio = nullptr;
-
-    delete g_theRenderer;
-    g_theRenderer = nullptr;
-
-    delete g_theWindow;
-    g_theWindow = nullptr;
-
-    delete g_input;
-    g_input = nullptr;
+    GEngine::Get().Shutdown();
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -196,13 +140,13 @@ STATIC void App::RequestQuit()
 void App::BeginFrame() const
 {
     g_eventSystem->BeginFrame();
-    g_theWindow->BeginFrame();
-    g_theRenderer->BeginFrame();
+    g_window->BeginFrame();
+    g_renderer->BeginFrame();
     DebugRenderBeginFrame();
     g_devConsole->BeginFrame();
     g_input->BeginFrame();
-    g_theAudio->BeginFrame();
-    g_theLightSubsystem->BeginFrame();
+    g_audio->BeginFrame();
+    g_lightSubsystem->BeginFrame();
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -212,7 +156,7 @@ void App::Update()
 
     UpdateCursorMode();
 
-    g_theGame->Update();
+    g_game->Update();
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -226,34 +170,37 @@ void App::Render() const
 {
     Rgba8 const clearColor = Rgba8::GREY;
 
-    g_theRenderer->ClearScreen(clearColor);
-    g_theGame->Render();
+    g_renderer->ClearScreen(clearColor);
+    g_game->Render();
 
-    g_theRenderer->BeginCamera(*m_devConsoleCamera);
-    AABB2 const box = AABB2(Vec2::ZERO, Vec2(1600.f, 30.f));
+    // g_renderer->BeginCamera(*m_devConsoleCamera);
+    // AABB2 const box = AABB2(Vec2::ZERO, Vec2(1600.f, 30.f));
+    //
+    // g_devConsole->Render(box);
+    // g_renderer->EndCamera(*m_devConsoleCamera);
+    AABB2 const box            = AABB2(Vec2::ZERO, Vec2(1600.f, 30.f));
 
     g_devConsole->Render(box);
-    g_theRenderer->EndCamera(*m_devConsoleCamera);
 }
 
 //----------------------------------------------------------------------------------------------------
 void App::EndFrame() const
 {
     g_eventSystem->EndFrame();
-    g_theWindow->EndFrame();
-    g_theRenderer->EndFrame();
+    g_window->EndFrame();
+    g_renderer->EndFrame();
     DebugRenderEndFrame();
     g_devConsole->EndFrame();
     g_input->EndFrame();
-    g_theAudio->EndFrame();
-    g_theLightSubsystem->EndFrame();
+    g_audio->EndFrame();
+    g_lightSubsystem->EndFrame();
 }
 
 //----------------------------------------------------------------------------------------------------
 void App::UpdateCursorMode()
 {
-    bool const doesWindowHasFocus   = GetActiveWindow() == g_theWindow->GetWindowHandle();
-    bool const shouldUsePointerMode = !doesWindowHasFocus || g_devConsole->IsOpen() || g_theGame->GetGameState() == eGameState::ATTRACT;
+    bool const doesWindowHasFocus   = GetActiveWindow() == g_window->GetWindowHandle();
+    bool const shouldUsePointerMode = !doesWindowHasFocus || g_devConsole->IsOpen() || g_game->GetGameState() == eGameState::ATTRACT;
 
     if (shouldUsePointerMode == true)
     {
@@ -268,10 +215,10 @@ void App::UpdateCursorMode()
 //----------------------------------------------------------------------------------------------------
 void App::DeleteAndCreateNewGame()
 {
-    delete g_theGame;
-    g_theGame = nullptr;
+    delete g_game;
+    g_game = nullptr;
 
-    g_theGame = new Game();
+    g_game = new Game();
 }
 
 void App::LoadGameConfig(char const* gameConfigXmlFilePath)

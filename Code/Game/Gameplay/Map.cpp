@@ -51,7 +51,7 @@ Map::Map(Game*                owner,
         SpawnActor(spawnInfo);
     }
 
-    for (PlayerController* controller : g_theGame->m_localPlayerControllerList)
+    for (PlayerController* controller : g_game->m_localPlayerControllerList)
     {
         Actor const* playerActor = SpawnPlayer(controller);
         controller->Possess(playerActor->m_handle);
@@ -205,8 +205,8 @@ void Map::AddGeometryForCeiling(VertexList_PCUTBN& verts,
 //----------------------------------------------------------------------------------------------------
 void Map::CreateBuffers()
 {
-    m_vertexBuffer = g_theRenderer->CreateVertexBuffer(sizeof(Vertex_PCUTBN), sizeof(Vertex_PCUTBN));
-    m_indexBuffer  = g_theRenderer->CreateIndexBuffer(sizeof(Vertex_PCUTBN), sizeof(Vertex_PCUTBN));
+    m_vertexBuffer = g_renderer->CreateVertexBuffer(sizeof(Vertex_PCUTBN), sizeof(Vertex_PCUTBN));
+    m_indexBuffer  = g_renderer->CreateIndexBuffer(sizeof(Vertex_PCUTBN), sizeof(Vertex_PCUTBN));
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -278,7 +278,7 @@ void Map::Update(float const deltaSeconds)
     CollideActors();
     CollideActorsWithMap();
     DeleteDestroyedActor();
-    for (PlayerController* controller : g_theGame->m_localPlayerControllerList)
+    for (PlayerController* controller : g_game->m_localPlayerControllerList)
     {
         if (!controller->GetActor())
         {
@@ -466,16 +466,16 @@ void Map::RenderAllActors(PlayerController const* toPlayer) const
 //----------------------------------------------------------------------------------------------------
 void Map::RenderMap() const
 {
-    g_theRenderer->SetModelConstants();
+    g_renderer->SetModelConstants();
     // g_theRenderer->SetLightConstants(m_sunDirection, m_sunIntensity, m_ambientIntensity);
-    g_theRenderer->SetBlendMode(eBlendMode::OPAQUE);
-    g_theRenderer->SetRasterizerMode(eRasterizerMode::SOLID_CULL_BACK);
-    g_theRenderer->SetSamplerMode(eSamplerMode::POINT_CLAMP);
-    g_theRenderer->SetDepthMode(eDepthMode::READ_WRITE_LESS_EQUAL);
-    g_theRenderer->BindTexture(m_texture);
-    g_theRenderer->BindShader(m_shader);
+    g_renderer->SetBlendMode(eBlendMode::OPAQUE);
+    g_renderer->SetRasterizerMode(eRasterizerMode::SOLID_CULL_BACK);
+    g_renderer->SetSamplerMode(eSamplerMode::POINT_CLAMP);
+    g_renderer->SetDepthMode(eDepthMode::READ_WRITE_LESS_EQUAL);
+    g_renderer->BindTexture(m_texture);
+    g_renderer->BindShader(m_shader);
 
-    g_theRenderer->DrawVertexArray(m_vertexes, m_indexes);
+    g_renderer->DrawVertexArray(m_vertexes, m_indexes);
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -887,7 +887,7 @@ Actor* Map::SpawnPlayer(PlayerController* playerController)
     spawnInfo.m_name = "Marine";
     std::vector<Actor*> out_actorLists;
     GetActorsByName(out_actorLists, "SpawnPoint");
-    Actor const* spawnPoint = out_actorLists[g_theRNG->RollRandomIntInRange(0, (int)out_actorLists.size() - 1)];
+    Actor const* spawnPoint = out_actorLists[g_rng->RollRandomIntInRange(0, (int)out_actorLists.size() - 1)];
     spawnInfo.m_position    = spawnPoint->m_position;
     spawnInfo.m_orientation = spawnPoint->m_orientation;
     spawnInfo.m_velocity    = spawnPoint->m_velocity;

@@ -13,6 +13,7 @@
 #include "Engine/Renderer/BitmapFont.hpp"
 #include "Engine/Renderer/DebugRenderSystem.hpp"
 #include "Engine/Renderer/Renderer.hpp"
+#include "Engine/Resource/ResourceSubsystem.hpp"
 #include "Game/Gameplay/Actor.hpp"
 #include "Game/Definition/ActorDefinition.hpp"
 #include "Game/Framework/App.hpp"
@@ -107,24 +108,24 @@ void Game::Render() const
             {
                 m_localPlayerControllerList[0]->SetViewport(AABB2(Vec2::ZERO, Vec2::ONE));
                 m_localPlayerControllerList[0]->Render();
-                g_theRenderer->BeginCamera(*m_localPlayerControllerList[0]->m_worldCamera);
+                g_renderer->BeginCamera(*m_localPlayerControllerList[0]->m_worldCamera);
                 m_currentMap->Render(m_localPlayerControllerList[0]);
-                g_theRenderer->EndCamera(*m_localPlayerControllerList[0]->m_worldCamera);
+                g_renderer->EndCamera(*m_localPlayerControllerList[0]->m_worldCamera);
             }
 
             if (m_localPlayerControllerList.size() == 2)
             {
                 m_localPlayerControllerList[0]->SetViewport(AABB2(Vec2(0.f, 0.f), Vec2(1.f, 0.5f)));
                 m_localPlayerControllerList[0]->Render();
-                g_theRenderer->BeginCamera(*m_localPlayerControllerList[0]->m_worldCamera);
+                g_renderer->BeginCamera(*m_localPlayerControllerList[0]->m_worldCamera);
                 m_currentMap->Render(m_localPlayerControllerList[0]);
-                g_theRenderer->EndCamera(*m_localPlayerControllerList[0]->m_worldCamera);
+                g_renderer->EndCamera(*m_localPlayerControllerList[0]->m_worldCamera);
 
                 m_localPlayerControllerList[1]->SetViewport(AABB2(Vec2(0.f, 0.5f), Vec2(1.f, 1.f)));
                 m_localPlayerControllerList[1]->Render();
-                g_theRenderer->BeginCamera(*m_localPlayerControllerList[1]->m_worldCamera);
+                g_renderer->BeginCamera(*m_localPlayerControllerList[1]->m_worldCamera);
                 m_currentMap->Render(m_localPlayerControllerList[1]);
-                g_theRenderer->EndCamera(*m_localPlayerControllerList[1]->m_worldCamera);
+                g_renderer->EndCamera(*m_localPlayerControllerList[1]->m_worldCamera);
             }
         }
     }
@@ -143,7 +144,7 @@ void Game::Render() const
     //------------------------------------------------------------------------------------------------
     //-Start-of-Screen-Camera-------------------------------------------------------------------------
 
-    g_theRenderer->BeginCamera(*m_screenCamera);
+    g_renderer->BeginCamera(*m_screenCamera);
 
     if (m_currentGameState == eGameState::ATTRACT)
     {
@@ -161,7 +162,7 @@ void Game::Render() const
         // RenderPlayerController();
     }
 
-    g_theRenderer->EndCamera(*m_screenCamera);
+    g_renderer->EndCamera(*m_screenCamera);
 
     //-End-of-Screen-Camera---------------------------------------------------------------------------
 
@@ -186,8 +187,8 @@ void Game::UpdateFromKeyBoard()
             CreateLocalPlayer(0, eDeviceType::KEYBOARD_AND_MOUSE);
             ChangeState(eGameState::LOBBY);
             PlaySoundClicked("Game.Common.Audio.ButtonClicked");
-            SoundID mainMenuSoundID = g_theAudio->CreateOrGetSound(g_gameConfigBlackboard.GetValue("Game.Common.Audio.MainMenu", ""), eAudioSystemSoundDimension::Sound2D);
-            m_mainMenuPlaybackID    = g_theAudio->StartSound(mainMenuSoundID, false, 0.25f);
+            SoundID mainMenuSoundID = g_audio->CreateOrGetSound(g_gameConfigBlackboard.GetValue("Game.Common.Audio.MainMenu", ""), eAudioSystemSoundDimension::Sound2D);
+            m_mainMenuPlaybackID    = g_audio->StartSound(mainMenuSoundID, false, 0.25f);
 
             return;
         }
@@ -215,10 +216,10 @@ void Game::UpdateFromKeyBoard()
                 }
 
                 ChangeState(eGameState::INGAME);
-                g_theAudio->StopSound(m_mainMenuPlaybackID);
-                SoundID inGameSoundID = g_theAudio->CreateOrGetSound(g_gameConfigBlackboard.GetValue("Game.Common.Audio.InGame", ""), eAudioSystemSoundDimension::Sound2D);
-                m_inGamePlaybackID    = g_theAudio->StartSound(inGameSoundID, false, 0.25f);
-                g_theAudio->SetNumListeners(static_cast<int>(m_localPlayerControllerList.size()));
+                g_audio->StopSound(m_mainMenuPlaybackID);
+                SoundID inGameSoundID = g_audio->CreateOrGetSound(g_gameConfigBlackboard.GetValue("Game.Common.Audio.InGame", ""), eAudioSystemSoundDimension::Sound2D);
+                m_inGamePlaybackID    = g_audio->StartSound(inGameSoundID, false, 0.25f);
+                g_audio->SetNumListeners(static_cast<int>(m_localPlayerControllerList.size()));
 
                 InitializeMaps();
             }
@@ -226,10 +227,10 @@ void Game::UpdateFromKeyBoard()
             if (m_localPlayerControllerList.size() == 2)
             {
                 ChangeState(eGameState::INGAME);
-                g_theAudio->StopSound(m_mainMenuPlaybackID);
-                SoundID inGameSoundID = g_theAudio->CreateOrGetSound(g_gameConfigBlackboard.GetValue("Game.Common.Audio.InGame", ""), eAudioSystemSoundDimension::Sound2D);
-                m_inGamePlaybackID    = g_theAudio->StartSound(inGameSoundID, false, 0.25f);
-                g_theAudio->SetNumListeners(static_cast<int>(m_localPlayerControllerList.size()));
+                g_audio->StopSound(m_mainMenuPlaybackID);
+                SoundID inGameSoundID = g_audio->CreateOrGetSound(g_gameConfigBlackboard.GetValue("Game.Common.Audio.InGame", ""), eAudioSystemSoundDimension::Sound2D);
+                m_inGamePlaybackID    = g_audio->StartSound(inGameSoundID, false, 0.25f);
+                g_audio->SetNumListeners(static_cast<int>(m_localPlayerControllerList.size()));
 
                 InitializeMaps();
             }
@@ -247,7 +248,7 @@ void Game::UpdateFromKeyBoard()
                 if (m_localPlayerControllerList.empty())
                 {
                     ChangeState(eGameState::ATTRACT);
-                    g_theAudio->StopSound(m_mainMenuPlaybackID);
+                    g_audio->StopSound(m_mainMenuPlaybackID);
                 }
             }
         }
@@ -258,7 +259,7 @@ void Game::UpdateFromKeyBoard()
         if (g_input->WasKeyJustPressed(KEYCODE_ESC))
         {
             ChangeState(eGameState::ATTRACT);
-            g_theAudio->StopSound(m_inGamePlaybackID);
+            g_audio->StopSound(m_inGamePlaybackID);
             if (m_currentMap != nullptr)
             {
                 delete m_currentMap;
@@ -310,8 +311,8 @@ void Game::UpdateFromController()
             CreateLocalPlayer(0, eDeviceType::CONTROLLER);
             ChangeState(eGameState::LOBBY);
             PlaySoundClicked("Game.Common.Audio.ButtonClicked");
-            SoundID mainMenuSoundID = g_theAudio->CreateOrGetSound(g_gameConfigBlackboard.GetValue("Game.Common.Audio.MainMenu", ""), eAudioSystemSoundDimension::Sound2D);
-            m_mainMenuPlaybackID    = g_theAudio->StartSound(mainMenuSoundID, false, 0.25f);
+            SoundID mainMenuSoundID = g_audio->CreateOrGetSound(g_gameConfigBlackboard.GetValue("Game.Common.Audio.MainMenu", ""), eAudioSystemSoundDimension::Sound2D);
+            m_mainMenuPlaybackID    = g_audio->StartSound(mainMenuSoundID, false, 0.25f);
             return;
         }
     }
@@ -338,10 +339,10 @@ void Game::UpdateFromController()
                 }
 
                 ChangeState(eGameState::INGAME);
-                g_theAudio->StopSound(m_mainMenuPlaybackID);
-                SoundID inGameSoundID = g_theAudio->CreateOrGetSound(g_gameConfigBlackboard.GetValue("Game.Common.Audio.InGame", ""), eAudioSystemSoundDimension::Sound2D);
-                m_inGamePlaybackID    = g_theAudio->StartSound(inGameSoundID, false, 0.25f);
-                g_theAudio->SetNumListeners(static_cast<int>(m_localPlayerControllerList.size()));
+                g_audio->StopSound(m_mainMenuPlaybackID);
+                SoundID inGameSoundID = g_audio->CreateOrGetSound(g_gameConfigBlackboard.GetValue("Game.Common.Audio.InGame", ""), eAudioSystemSoundDimension::Sound2D);
+                m_inGamePlaybackID    = g_audio->StartSound(inGameSoundID, false, 0.25f);
+                g_audio->SetNumListeners(static_cast<int>(m_localPlayerControllerList.size()));
 
                 InitializeMaps();
             }
@@ -349,10 +350,10 @@ void Game::UpdateFromController()
             if (m_localPlayerControllerList.size() == 2)
             {
                 ChangeState(eGameState::INGAME);
-                g_theAudio->StopSound(m_mainMenuPlaybackID);
-                SoundID inGameSoundID = g_theAudio->CreateOrGetSound(g_gameConfigBlackboard.GetValue("Game.Common.Audio.InGame", ""), eAudioSystemSoundDimension::Sound2D);
-                m_inGamePlaybackID    = g_theAudio->StartSound(inGameSoundID, false, 0.25f);
-                g_theAudio->SetNumListeners(static_cast<int>(m_localPlayerControllerList.size()));
+                g_audio->StopSound(m_mainMenuPlaybackID);
+                SoundID inGameSoundID = g_audio->CreateOrGetSound(g_gameConfigBlackboard.GetValue("Game.Common.Audio.InGame", ""), eAudioSystemSoundDimension::Sound2D);
+                m_inGamePlaybackID    = g_audio->StartSound(inGameSoundID, false, 0.25f);
+                g_audio->SetNumListeners(static_cast<int>(m_localPlayerControllerList.size()));
 
                 InitializeMaps();
             }
@@ -370,7 +371,7 @@ void Game::UpdateFromController()
                 if (m_localPlayerControllerList.empty())
                 {
                     ChangeState(eGameState::ATTRACT);
-                    g_theAudio->StopSound(m_mainMenuPlaybackID);
+                    g_audio->StopSound(m_mainMenuPlaybackID);
                 }
             }
         }
@@ -381,7 +382,7 @@ void Game::UpdateFromController()
         if (controller.WasButtonJustPressed(XBOX_BUTTON_BACK))
         {
             ChangeState(eGameState::ATTRACT);
-            g_theAudio->StopSound(m_inGamePlaybackID);
+            g_audio->StopSound(m_inGamePlaybackID);
             if (m_currentMap != nullptr)
             {
                 delete m_currentMap;
@@ -453,41 +454,45 @@ void Game::UpdateListeners(float const deltaSeconds) const
     {
         Vec3 forward, left, up;
         controller->m_orientation.GetAsVectors_IFwd_JLeft_KUp(forward, left, up);
-        g_theAudio->UpdateListener(controller->m_index - 1, controller->m_position, forward, up); // Index is an adjustment
+        g_audio->UpdateListener(controller->m_index - 1, controller->m_position, forward, up); // Index is an adjustment
     }
 }
 
 //----------------------------------------------------------------------------------------------------
 void Game::RenderAttractMode() const
 {
+    BitmapFont*    bitmapFont = g_resourceSubsystem->CreateOrGetBitmapFontFromFile("Data/Fonts/SquirrelFixedFont");
     VertexList_PCU verts;
+
     AddVertsForAABB2D(verts, m_screenSpace.m_mins, m_screenSpace.m_maxs, Rgba8::BLACK);
     AddVertsForDisc2D(verts, m_screenSpace.GetCenter(), 150.f, 10.f, Rgba8::YELLOW);
 
-    g_theRenderer->SetModelConstants();
-    g_theRenderer->SetBlendMode(eBlendMode::ALPHA);
-    g_theRenderer->SetRasterizerMode(eRasterizerMode::SOLID_CULL_NONE);
-    g_theRenderer->SetSamplerMode(eSamplerMode::POINT_CLAMP);
-    g_theRenderer->SetDepthMode(eDepthMode::DISABLED);
-    g_theRenderer->BindTexture(nullptr);
-    g_theRenderer->DrawVertexArray(static_cast<int>(verts.size()), verts.data());
+    g_renderer->SetModelConstants();
+    g_renderer->SetBlendMode(eBlendMode::ALPHA);
+    g_renderer->SetRasterizerMode(eRasterizerMode::SOLID_CULL_NONE);
+    g_renderer->SetSamplerMode(eSamplerMode::POINT_CLAMP);
+    g_renderer->SetDepthMode(eDepthMode::DISABLED);
+    g_renderer->BindTexture(nullptr);
+    g_renderer->DrawVertexArray(static_cast<int>(verts.size()), verts.data());
 
     VertexList_PCU  textVerts;
     float constexpr textHeight = 20.f;
     AABB2 const     textBounds = AABB2(m_screenSpace.m_mins, Vec2(m_screenSpace.m_maxs.x, textHeight * 3.f));
-    g_theBitmapFont->AddVertsForTextInBox2D(textVerts, "Press SPACE to join with mouse and keyboard\nPress START to join with controller\nPress ESCAPE or BACK to exit", textBounds, textHeight * 3.f, Rgba8::WHITE, 1.f, Vec2::HALF);
-    g_theRenderer->SetModelConstants();
-    g_theRenderer->SetBlendMode(eBlendMode::ALPHA);
-    g_theRenderer->SetRasterizerMode(eRasterizerMode::SOLID_CULL_NONE);
-    g_theRenderer->SetSamplerMode(eSamplerMode::POINT_CLAMP);
-    g_theRenderer->SetDepthMode(eDepthMode::DISABLED);
-    g_theRenderer->BindTexture(&g_theBitmapFont->GetTexture());
-    g_theRenderer->DrawVertexArray(static_cast<int>(textVerts.size()), textVerts.data());
+    bitmapFont->AddVertsForTextInBox2D(textVerts, "Press SPACE to join with mouse and keyboard\nPress START to join with controller\nPress ESCAPE or BACK to exit", textBounds, textHeight * 3.f, Rgba8::WHITE, 1.f, Vec2::HALF);
+    g_renderer->SetModelConstants();
+    g_renderer->SetBlendMode(eBlendMode::ALPHA);
+    g_renderer->SetRasterizerMode(eRasterizerMode::SOLID_CULL_NONE);
+    g_renderer->SetSamplerMode(eSamplerMode::POINT_CLAMP);
+    g_renderer->SetDepthMode(eDepthMode::DISABLED);
+    g_renderer->BindTexture(&bitmapFont->GetTexture());
+    g_renderer->DrawVertexArray(static_cast<int>(textVerts.size()), textVerts.data());
 }
 
 void Game::RenderLobby() const
 {
     VertexList_PCU verts;
+
+    BitmapFont*    bitmapFont = g_resourceSubsystem->CreateOrGetBitmapFontFromFile("Data/Fonts/SquirrelFixedFont");
 
     if (m_localPlayerControllerList.size() == 1)
     {
@@ -496,13 +501,13 @@ void Game::RenderLobby() const
         AddVertsForAABB2D(verts, m_screenSpace.m_mins, m_screenSpace.m_maxs, Rgba8::BLACK);
         AddVertsForDisc2D(verts, m_screenSpace.GetCenter(), 150.f, 10.f, Rgba8::GREEN);
 
-        g_theRenderer->SetModelConstants();
-        g_theRenderer->SetBlendMode(eBlendMode::ALPHA);
-        g_theRenderer->SetRasterizerMode(eRasterizerMode::SOLID_CULL_NONE);
-        g_theRenderer->SetSamplerMode(eSamplerMode::POINT_CLAMP);
-        g_theRenderer->SetDepthMode(eDepthMode::DISABLED);
-        g_theRenderer->BindTexture(nullptr);
-        g_theRenderer->DrawVertexArray(static_cast<int>(verts.size()), verts.data());
+        g_renderer->SetModelConstants();
+        g_renderer->SetBlendMode(eBlendMode::ALPHA);
+        g_renderer->SetRasterizerMode(eRasterizerMode::SOLID_CULL_NONE);
+        g_renderer->SetSamplerMode(eSamplerMode::POINT_CLAMP);
+        g_renderer->SetDepthMode(eDepthMode::DISABLED);
+        g_renderer->BindTexture(nullptr);
+        g_renderer->DrawVertexArray(static_cast<int>(verts.size()), verts.data());
 
         VertexList_PCU  textVerts;
         float constexpr textHeight = 20.f;
@@ -511,14 +516,14 @@ void Game::RenderLobby() const
                                          ? "Keyboard and Mouse\nPress SPACE to start game\nPress ESCAPE to leave game\nPress START to join player"
                                          : "Controller\nPress START to start game\nPress BACK to leave game\nPress SPACE to join player";
 
-        g_theBitmapFont->AddVertsForTextInBox2D(textVerts, "Player 01\n" + text, textBounds, textHeight * 5.f, Rgba8::WHITE, 1.f, Vec2::HALF);
-        g_theRenderer->SetModelConstants();
-        g_theRenderer->SetBlendMode(eBlendMode::ALPHA);
-        g_theRenderer->SetRasterizerMode(eRasterizerMode::SOLID_CULL_NONE);
-        g_theRenderer->SetSamplerMode(eSamplerMode::POINT_CLAMP);
-        g_theRenderer->SetDepthMode(eDepthMode::DISABLED);
-        g_theRenderer->BindTexture(&g_theBitmapFont->GetTexture());
-        g_theRenderer->DrawVertexArray(static_cast<int>(textVerts.size()), textVerts.data());
+        bitmapFont->AddVertsForTextInBox2D(textVerts, "Player 01\n" + text, textBounds, textHeight * 5.f, Rgba8::WHITE, 1.f, Vec2::HALF);
+        g_renderer->SetModelConstants();
+        g_renderer->SetBlendMode(eBlendMode::ALPHA);
+        g_renderer->SetRasterizerMode(eRasterizerMode::SOLID_CULL_NONE);
+        g_renderer->SetSamplerMode(eSamplerMode::POINT_CLAMP);
+        g_renderer->SetDepthMode(eDepthMode::DISABLED);
+        g_renderer->BindTexture(&bitmapFont->GetTexture());
+        g_renderer->DrawVertexArray(static_cast<int>(textVerts.size()), textVerts.data());
     }
     else if (m_localPlayerControllerList.size() == 2)
     {
@@ -532,13 +537,13 @@ void Game::RenderLobby() const
         AddVertsForAABB2D(verts, playerController2.m_mins, playerController2.m_maxs, Rgba8::GREY);
         AddVertsForDisc2D(verts, playerController2.GetCenter(), 150.f, 10.f, Rgba8::RED);
 
-        g_theRenderer->SetModelConstants();
-        g_theRenderer->SetBlendMode(eBlendMode::ALPHA);
-        g_theRenderer->SetRasterizerMode(eRasterizerMode::SOLID_CULL_NONE);
-        g_theRenderer->SetSamplerMode(eSamplerMode::POINT_CLAMP);
-        g_theRenderer->SetDepthMode(eDepthMode::DISABLED);
-        g_theRenderer->BindTexture(nullptr);
-        g_theRenderer->DrawVertexArray(static_cast<int>(verts.size()), verts.data());
+        g_renderer->SetModelConstants();
+        g_renderer->SetBlendMode(eBlendMode::ALPHA);
+        g_renderer->SetRasterizerMode(eRasterizerMode::SOLID_CULL_NONE);
+        g_renderer->SetSamplerMode(eSamplerMode::POINT_CLAMP);
+        g_renderer->SetDepthMode(eDepthMode::DISABLED);
+        g_renderer->BindTexture(nullptr);
+        g_renderer->DrawVertexArray(static_cast<int>(verts.size()), verts.data());
 
         VertexList_PCU  textVerts;
         float constexpr textHeight                  = 20.f;
@@ -546,15 +551,16 @@ void Game::RenderLobby() const
         AABB2 const     playerControllerTextBounds2 = AABB2(playerController2.m_mins, Vec2(playerController2.m_maxs.x, textHeight * 4.f));
         String const    text1                       = m_localPlayerControllerList[0]->m_deviceType == eDeviceType::KEYBOARD_AND_MOUSE ? "Keyboard and Mouse\nPress SPACE to start game\nPress ESCAPE to leave game" : "Controller\nPress START to start game\nPress BACK to leave game";
         String const    text2                       = m_localPlayerControllerList[1]->m_deviceType == eDeviceType::KEYBOARD_AND_MOUSE ? "Keyboard and Mouse\nPress SPACE to start game\nPress ESCAPE to leave game" : "Controller\nPress START to start game\nPress BACK to leave game";
-        g_theBitmapFont->AddVertsForTextInBox2D(textVerts, "Player 01\n" + text1, playerControllerTextBounds1, textHeight * 4.f, Rgba8::WHITE, 1.f, Vec2::HALF);
-        g_theBitmapFont->AddVertsForTextInBox2D(textVerts, "Player 02\n" + text2, playerControllerTextBounds2, textHeight * 4.f, Rgba8::WHITE, 1.f, Vec2::HALF);
-        g_theRenderer->SetModelConstants();
-        g_theRenderer->SetBlendMode(eBlendMode::ALPHA);
-        g_theRenderer->SetRasterizerMode(eRasterizerMode::SOLID_CULL_NONE);
-        g_theRenderer->SetSamplerMode(eSamplerMode::POINT_CLAMP);
-        g_theRenderer->SetDepthMode(eDepthMode::DISABLED);
-        g_theRenderer->BindTexture(&g_theBitmapFont->GetTexture());
-        g_theRenderer->DrawVertexArray(static_cast<int>(textVerts.size()), textVerts.data());
+        bitmapFont->AddVertsForTextInBox2D(textVerts, "Player 01\n" + text1, playerControllerTextBounds1, textHeight * 4.f, Rgba8::WHITE, 1.f, Vec2::HALF);
+        bitmapFont->AddVertsForTextInBox2D(textVerts, "Player 02\n" + text2, playerControllerTextBounds2, textHeight * 4.f, Rgba8::WHITE, 1.f, Vec2::HALF);
+        g_renderer->SetModelConstants();
+        g_renderer->SetBlendMode(eBlendMode::ALPHA);
+        g_renderer->SetRasterizerMode(eRasterizerMode::SOLID_CULL_NONE);
+        g_renderer->SetSamplerMode(eSamplerMode::POINT_CLAMP);
+        g_renderer->SetDepthMode(eDepthMode::DISABLED);
+
+        g_renderer->BindTexture(&bitmapFont->GetTexture());
+        g_renderer->DrawVertexArray(static_cast<int>(textVerts.size()), textVerts.data());
     }
 }
 

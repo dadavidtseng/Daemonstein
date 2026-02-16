@@ -9,6 +9,7 @@
 #include "Engine/Core/ErrorWarningAssert.hpp"
 #include "Engine/Renderer/Renderer.hpp"
 #include "Engine/Renderer/Shader.hpp"
+#include "Engine/Resource/ResourceSubsystem.hpp"
 #include "Game/Framework/GameCommon.hpp"
 
 //----------------------------------------------------------------------------------------------------
@@ -34,9 +35,9 @@ bool MapDefinition::LoadFromXmlElement(XmlElement const& element)
     String const spriteSheetTextureFilePath = ParseXmlAttribute(element, "spriteSheetTexture", "Unnamed");
     m_spriteSheetCellCount                  = ParseXmlAttribute(element, "spriteSheetCellCount", IntVec2::ZERO);
 
-    m_image              = g_theRenderer->CreateImageFromFile(imageFilePath.c_str());
-    m_shader             = g_theRenderer->CreateOrGetShaderFromFile(shaderFilePath.c_str(), eVertexType::VERTEX_PCUTBN);
-    m_spriteSheetTexture = g_theRenderer->CreateOrGetTextureFromFile(spriteSheetTextureFilePath.c_str());
+    m_image              = Image(imageFilePath.c_str());
+    m_shader             = g_renderer->CreateOrGetShaderFromFile(shaderFilePath.c_str(), eVertexType::VERTEX_PCUTBN);
+    m_spriteSheetTexture = g_resourceSubsystem->CreateOrGetTextureFromFile(spriteSheetTextureFilePath.c_str());
 
     XmlElement const* spawnInfosElement = element.FirstChildElement("SpawnInfos");
 

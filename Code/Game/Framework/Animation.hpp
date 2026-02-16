@@ -29,5 +29,5 @@ private:
     Shader*                m_shader          = nullptr;                         // Shader to use when rendering the weapon sprite.
     SpriteSheet const*     m_spriteSheet     = nullptr;                         // Sprite sheet containing the weapon animations.
     SpriteAnimDefinition*  m_spriteAnim      = nullptr;
-    SpriteAnimPlaybackType m_playbackType    = SpriteAnimPlaybackType::ONCE;
+    eSpriteAnimPlaybackType m_playbackType    = eSpriteAnimPlaybackType::ONCE;
 };

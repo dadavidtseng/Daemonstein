@@ -26,6 +26,6 @@ private:
     String                               m_name            = "DEFAULT";
     float                                m_scaleBySpeed    = false;
     float                                m_secondsPerFrame = 0.f;
-    SpriteAnimPlaybackType               m_playbackType    = SpriteAnimPlaybackType::LOOP;
+    eSpriteAnimPlaybackType               m_playbackType    = eSpriteAnimPlaybackType::LOOP;
     std::map<Vec3, SpriteAnimDefinition> m_animationDict;
 };

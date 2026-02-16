@@ -15,6 +15,7 @@
 #include "Engine/Renderer/BitmapFont.hpp"
 #include "Engine/Renderer/DebugRenderSystem.hpp"
 #include "Engine/Renderer/Renderer.hpp"
+#include "Engine/Resource/ResourceSubsystem.hpp"
 #include "Game/Gameplay/Actor.hpp"
 #include "Game/Definition/ActorDefinition.hpp"
 #include "Game/Framework/Animation.hpp"
@@ -33,17 +34,17 @@ Weapon::Weapon(Actor*            owner,
     : m_owner(owner),
       m_definition(weaponDef)
 {
-    m_timer = new Timer(m_definition->m_refireTime, g_theGame->m_gameClock);
-    m_timer->m_startTime = g_theGame->m_gameClock->GetTotalSeconds();
-    m_animationTimer = new Timer(0.f, g_theGame->m_gameClock);
+    m_timer = new Timer(m_definition->m_refireTime, g_game->m_gameClock);
+    m_timer->m_startTime = g_game->m_gameClock->GetTotalSeconds();
+    m_animationTimer = new Timer(0.f, g_game->m_gameClock);
 
     /// Init hud base bound
     if (m_definition->m_hud != nullptr)
     {
         Texture const* baseTexture   = m_definition->m_hud->m_baseTexture;
         IntVec2 const  baseDimension = baseTexture->GetDimensions();
-        float const    multiplier    = g_theGame->m_screenSpace.m_maxs.x / (float)baseDimension.x;
-        m_hudBaseBound               = AABB2(Vec2(0.0f, 0.0f), Vec2(g_theGame->m_screenSpace.m_maxs.x, (float)baseDimension.y * multiplier));
+        float const    multiplier    = g_game->m_screenSpace.m_maxs.x / (float)baseDimension.x;
+        m_hudBaseBound               = AABB2(Vec2(0.0f, 0.0f), Vec2(g_game->m_screenSpace.m_maxs.x, (float)baseDimension.y * multiplier));
     }
 }
 
@@ -74,8 +75,8 @@ void Weapon::Render() const
 {
     if (m_definition == nullptr || m_definition->m_hud == nullptr) return;
 
-    g_theRenderer->BindShader(m_definition->m_hud->m_shader);
-    g_theRenderer->SetBlendMode(eBlendMode::OPAQUE);
+    g_renderer->BindShader(m_definition->m_hud->m_shader);
+    g_renderer->SetBlendMode(eBlendMode::OPAQUE);
     RenderWeaponBase();
     RenderWeaponReticule();
     RenderWeaponAnim();
@@ -91,8 +92,8 @@ void Weapon::RenderWeaponBase() const
     /// Hud Base TODO: Handle multiplayer
     Texture* baseTexture = m_definition->m_hud->m_baseTexture;
     AddVertsForAABB2D(vertexes, m_hudBaseBound, Rgba8::WHITE);
-    g_theRenderer->BindTexture(baseTexture);
-    g_theRenderer->DrawVertexArray(vertexes);
+    g_renderer->BindTexture(baseTexture);
+    g_renderer->DrawVertexArray(vertexes);
 }
 
 void Weapon::RenderWeaponReticule() const
@@ -105,42 +106,42 @@ void Weapon::RenderWeaponReticule() const
 
     Vec2 reticleSpriteOffSet = -reticleDimension * m_definition->m_hud->m_spritePivot;
 
-    AABB2 reticleBound = AABB2(Vec2(g_theGame->m_screenSpace.m_maxs / 2.0f), (Vec2(g_theGame->m_screenSpace.m_maxs / 2.0f) + Vec2(reticleDimension)));
+    AABB2 reticleBound = AABB2(Vec2(g_game->m_screenSpace.m_maxs / 2.0f), (Vec2(g_game->m_screenSpace.m_maxs / 2.0f) + Vec2(reticleDimension)));
 
 
     /// Change the dimension base on split screen y
     Vec2  dim            = reticleBound.GetDimensions();
     AABB2 screenViewport = m_owner->m_controller->m_screenViewport;
-    float multiplier     = g_theGame->m_screenSpace.GetDimensions().y / screenViewport.GetDimensions().y;
+    float multiplier     = g_game->m_screenSpace.GetDimensions().y / screenViewport.GetDimensions().y;
     dim.x /= multiplier;
     reticleBound.SetDimensions(dim);
     /// End of Change
 
     AddVertsForAABB2D(vertexes, reticleBound, Rgba8::WHITE);
-    g_theRenderer->BindTexture(reticleTexture);
-    g_theRenderer->DrawVertexArray(vertexes);
+    g_renderer->BindTexture(reticleTexture);
+    g_renderer->DrawVertexArray(vertexes);
 }
 
 void Weapon::RenderWeaponHudText() const
 {
-    g_theRenderer->BindTexture(nullptr);
+    g_renderer->BindTexture(nullptr);
     PlayerController* player = dynamic_cast<PlayerController*>(m_owner->m_controller);
     if (!player) return;
     std::vector<Vertex_PCU> vertexes;
     vertexes.reserve(1024);
-    BitmapFont* g_testFont  = g_theRenderer->CreateOrGetBitmapFontFromFile("Data/Fonts/SquirrelFixedFont");
+    BitmapFont* g_testFont  = g_resourceSubsystem->CreateOrGetBitmapFontFromFile("Data/Fonts/SquirrelFixedFont");
     AABB2       boundingBox = m_hudBaseBound;
     Vec2        dim         = boundingBox.GetDimensions();
     // m_owner->m_controller->m_screenViewport = boundingBox;
     AABB2 screenViewport = m_owner->m_controller->m_screenViewport;
-    float multiplier     = g_theGame->m_screenSpace.GetDimensions().y / screenViewport.GetDimensions().y;
+    float multiplier     = g_game->m_screenSpace.GetDimensions().y / screenViewport.GetDimensions().y;
     g_testFont->AddVertsForTextInBox2D(vertexes, Stringf("%d", (int)m_owner->m_health), boundingBox, 40.f, Rgba8::WHITE, 1 / multiplier, Vec2(0.29f, 0.5f));
     // g_testFont->AddVertsForTextInBox2D(vertexes, Stringf("%d", PlayerSaveSubsystem::GetPlayerSaveData(player->m_index)->m_numOfKilled), boundingBox, 40.f, Rgba8::WHITE, 1 / multiplier,
     // Vec2(0.05f, 0.5f));
     // g_testFont->AddVertsForTextInBox2D(vertexes, Stringf("%d", PlayerSaveSubsystem::GetPlayerSaveData(player->m_index)->m_numOfDeaths), boundingBox, 40.f, Rgba8::WHITE, 1 / multiplier,
     // Vec2(0.95f, 0.5f));
-    g_theRenderer->BindTexture(&g_testFont->GetTexture());
-    g_theRenderer->DrawVertexArray(vertexes);
+    g_renderer->BindTexture(&g_testFont->GetTexture());
+    g_renderer->DrawVertexArray(vertexes);
     // g_theRenderer->BindTexture(nullptr);
 }
 
@@ -160,7 +161,7 @@ void Weapon::RenderWeaponAnim() const
     Vec2 spriteOffSet = -Vec2(m_definition->m_hud->m_spriteSize) * m_definition->m_hud->m_spritePivot;
 
     IntVec2 boundSize = m_definition->m_hud->m_spriteSize;
-    AABB2   bound     = AABB2(Vec2(g_theGame->m_screenSpace.m_maxs.x / 2.0f, 0.f), Vec2(g_theGame->m_screenSpace.m_maxs.x / 2.0f, 0.f) + Vec2(boundSize));
+    AABB2   bound     = AABB2(Vec2(g_game->m_screenSpace.m_maxs.x / 2.0f, 0.f), Vec2(g_game->m_screenSpace.m_maxs.x / 2.0f, 0.f) + Vec2(boundSize));
 
     /// Change the dimension base on split screen y
     // Vec2  dim            = bound.GetDimensions();
@@ -175,8 +176,8 @@ void Weapon::RenderWeaponAnim() const
     bound.Translate(Vec2(0.f, m_hudBaseBound.m_maxs.y)); // Shitty hardcode
     AddVertsForAABB2D(vertexes, bound, Rgba8::WHITE, uvAtTime.m_mins, uvAtTime.m_maxs);
     AddVertsForAABB2D(vertexes, uvAtTime, Rgba8::WHITE);
-    g_theRenderer->BindTexture(&spriteAtTime.GetTexture());
-    g_theRenderer->DrawVertexArray(vertexes);
+    g_renderer->BindTexture(&spriteAtTime.GetTexture());
+    g_renderer->DrawVertexArray(vertexes);
 }
 
 
@@ -192,13 +193,13 @@ void Weapon::Fire()
 
     if (m_timer->HasPeriodElapsed())
     {
-        float m_currentFireTime   = (float)g_theGame->m_gameClock->GetTotalSeconds();
+        float m_currentFireTime   = (float)g_game->m_gameClock->GetTotalSeconds();
         float m_timeSinceLastFire = m_currentFireTime - m_lastFireTime;
         if (m_timeSinceLastFire > m_definition->m_refireTime)
         {
             // m_owner->m_controller->m_state = "Attack";
             SoundID weaponFireSound = m_definition->GetSoundByName("Fire")->GetSoundID();
-            g_theAudio->StartSoundAt(weaponFireSound, m_owner->m_position);
+            g_audio->StartSoundAt(weaponFireSound, m_owner->m_position);
             if (m_definition->m_hud)
             {
                 PlayAnimationByName("Attack");
@@ -235,7 +236,7 @@ void Weapon::Fire()
                     particleSpawnInfo.m_position.x = GetClamped(particleSpawnInfo.m_position.x, 0.f, 31.f);
                     particleSpawnInfo.m_position.y = GetClamped(particleSpawnInfo.m_position.y, 0.f, 31.f);
                     particleSpawnInfo.m_name       = "BulletHit";
-                    g_theGame->m_currentMap->SpawnActor(particleSpawnInfo);
+                    g_game->m_currentMap->SpawnActor(particleSpawnInfo);
                 }
                 else
                 {
@@ -252,7 +253,7 @@ void Weapon::Fire()
                     SpawnInfo particleSpawnInfo;
                     particleSpawnInfo.m_position = result.m_impactPosition;
                     particleSpawnInfo.m_name     = "BloodSplatter";
-                    g_theGame->m_currentMap->SpawnActor(particleSpawnInfo);
+                    g_game->m_currentMap->SpawnActor(particleSpawnInfo);
                 }
                 rayCount--;
             }
@@ -315,7 +316,7 @@ void Weapon::Fire()
                 }
                 if (bestTarget)
                 {
-                    float damage = g_theRNG->RollRandomFloatInRange(m_definition->m_meleeDamage.m_min, m_definition->m_meleeDamage.m_max);
+                    float damage = g_rng->RollRandomFloatInRange(m_definition->m_meleeDamage.m_min, m_definition->m_meleeDamage.m_max);
                     bestTarget->Damage((int)damage, m_owner->m_handle);
                     bestTarget->AddImpulse(m_definition->m_meleeImpulse * fwd);
                 }
@@ -372,9 +373,9 @@ Animation* Weapon::PlayAnimationByName(std::string animationName, bool force)
 // This, and other utility methods, will be helpful for randomizing weapons with a cone.
 EulerAngles Weapon::GetRandomDirectionInCone(EulerAngles weaponOrientation, float degreeOfVariation)
 {
-    float const       randomYaw       = g_theRNG->RollRandomFloatInRange(-degreeOfVariation, degreeOfVariation);
-    float const       randomPitch     = g_theRNG->RollRandomFloatInRange(-degreeOfVariation, degreeOfVariation);
-    float const       randomRow       = g_theRNG->RollRandomFloatInRange(-degreeOfVariation, degreeOfVariation);
+    float const       randomYaw       = g_rng->RollRandomFloatInRange(-degreeOfVariation, degreeOfVariation);
+    float const       randomPitch     = g_rng->RollRandomFloatInRange(-degreeOfVariation, degreeOfVariation);
+    float const       randomRow       = g_rng->RollRandomFloatInRange(-degreeOfVariation, degreeOfVariation);
     EulerAngles const randomDirection = EulerAngles(weaponOrientation.m_yawDegrees + randomYaw, weaponOrientation.m_pitchDegrees + randomPitch, weaponOrientation.m_rollDegrees + randomRow);
     return randomDirection;
 }

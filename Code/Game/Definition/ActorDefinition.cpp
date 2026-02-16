@@ -8,6 +8,7 @@
 #include "Engine/Core/EngineCommon.hpp"
 #include "Engine/Core/ErrorWarningAssert.hpp"
 #include "Engine/Renderer/Renderer.hpp"
+#include "Engine/Resource/ResourceSubsystem.hpp"
 #include "Game/Framework/AnimationGroup.hpp"
 #include "Game/Framework/GameCommon.hpp"
 #include "Game/Gameplay/Sound.hpp"
@@ -94,9 +95,9 @@ bool ActorDefinition::LoadFromXmlElement(XmlElement const* element)
         m_renderRounded                   = ParseXmlAttribute(*visualElement, "renderRounded", false);
         m_cellCount                       = ParseXmlAttribute(*visualElement, "cellCount", IntVec2::ZERO);
         String const shaderPath           = ParseXmlAttribute(*visualElement, "shader", "DEFAULT");
-        m_shader                          = g_theRenderer->CreateOrGetShaderFromFile(shaderPath.c_str(), eVertexType::VERTEX_PCUTBN);
+        m_shader                          = g_renderer->CreateOrGetShaderFromFile(shaderPath.c_str(), eVertexType::VERTEX_PCUTBN);
         String const   spriteSheetPath    = ParseXmlAttribute(*visualElement, "spriteSheet", "DEFAULT");
-        Texture const* spriteSheetTexture = g_theRenderer->CreateOrGetTextureFromFile(spriteSheetPath.c_str());
+        Texture const* spriteSheetTexture = g_resourceSubsystem->CreateOrGetTextureFromFile(spriteSheetPath.c_str());
         m_spriteSheet                     = new SpriteSheet(*spriteSheetTexture, m_cellCount);
 
         if (visualElement->ChildElementCount() > 0)

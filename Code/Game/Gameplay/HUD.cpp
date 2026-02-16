@@ -5,7 +5,9 @@
 //----------------------------------------------------------------------------------------------------
 #include "Game/Gameplay/HUD.hpp"
 
+#include "Engine/Core/EngineCommon.hpp"
 #include "Engine/Renderer/Renderer.hpp"
+#include "Engine/Resource/ResourceSubsystem.hpp"
 #include "Game/Framework/Animation.hpp"
 #include "Game/Framework/GameCommon.hpp"
 
@@ -13,15 +15,15 @@
 HUD::HUD(XmlElement const& hudElement)
 {
     m_shaderName            = ParseXmlAttribute(hudElement, "shader", "DEFAULT");
-    m_shader                = g_theRenderer->CreateOrGetShaderFromFile(m_shaderName.c_str(), eVertexType::VERTEX_PCU);
+    m_shader                = g_renderer->CreateOrGetShaderFromFile(m_shaderName.c_str(), eVertexType::VERTEX_PCU);
     m_reticuleSize          = ParseXmlAttribute(hudElement, "reticleSize", m_reticuleSize);
     m_spriteSize            = ParseXmlAttribute(hudElement, "spriteSize", m_spriteSize);
     m_spritePivot           = ParseXmlAttribute(hudElement, "spritePivot", m_spritePivot);
     m_baseTexturePath       = ParseXmlAttribute(hudElement, "baseTexture", m_baseTexturePath);
     m_m_reticuleTexturePath = ParseXmlAttribute(hudElement, "reticleTexture", m_m_reticuleTexturePath);
 
-    m_baseTexture     = g_theRenderer->CreateOrGetTextureFromFile(m_baseTexturePath.c_str());
-    m_reticuleTexture = g_theRenderer->CreateOrGetTextureFromFile(m_m_reticuleTexturePath.c_str());
+    m_baseTexture     = g_resourceSubsystem->CreateOrGetTextureFromFile(m_baseTexturePath.c_str());
+    m_reticuleTexture = g_resourceSubsystem->CreateOrGetTextureFromFile(m_m_reticuleTexturePath.c_str());
 
     if (hudElement.ChildElementCount() > 0)
     {

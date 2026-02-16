@@ -16,9 +16,9 @@ AnimationGroup::AnimationGroup(XmlElement const&  animationGroupElement,
     m_secondsPerFrame   = ParseXmlAttribute(animationGroupElement, "secondsPerFrame", m_secondsPerFrame);
     String playbackMode = "Loop";
     playbackMode        = ParseXmlAttribute(animationGroupElement, "playbackMode", playbackMode);
-    if (playbackMode == "Loop") m_playbackType = SpriteAnimPlaybackType::LOOP;
-    if (playbackMode == "Once") m_playbackType = SpriteAnimPlaybackType::ONCE;
-    if (playbackMode == "Pingpong") m_playbackType = SpriteAnimPlaybackType::PINGPONG;
+    if (playbackMode == "Loop") m_playbackType = eSpriteAnimPlaybackType::LOOP;
+    if (playbackMode == "Once") m_playbackType = eSpriteAnimPlaybackType::ONCE;
+    if (playbackMode == "Pingpong") m_playbackType = eSpriteAnimPlaybackType::PINGPONG;
 
     if (animationGroupElement.ChildElementCount() > 0)
     {

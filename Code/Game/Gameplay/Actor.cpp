@@ -72,7 +72,7 @@ Actor::Actor(SpawnInfo const& spawnInfo)
 
     m_collisionCylinder = Cylinder3(m_position, m_position + Vec3(0.f, 0.f, m_height), m_radius);
 
-    m_animationTimer = new Timer(0, g_theGame->m_gameClock);
+    m_animationTimer = new Timer(0, g_game->m_gameClock);
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -92,9 +92,9 @@ void Actor::Update(float const deltaSeconds)
         {
             SoundID actorDamagedSound = m_definition->GetSoundByName("Death")->GetSoundID();
 
-            if (!g_theAudio->IsPlaying(actorDamagedSound))
+            if (!g_audio->IsPlaying(actorDamagedSound))
             {
-                g_theAudio->StartSoundAt(actorDamagedSound, m_position);
+                g_audio->StartSoundAt(actorDamagedSound, m_position);
             }
         }
         m_isGarbage = true;
@@ -125,7 +125,7 @@ void Actor::Render(PlayerController const* toPlayer) const
     if (m_controller && dynamic_cast<PlayerController*>(m_controller)) // Check if we are the rendering player and not in free fly mode. If so, return.
     {
         auto playerController = dynamic_cast<PlayerController*>(m_controller);
-        if (g_theGame->GetIsSingleMode() && !playerController->m_isCameraMode) // If we in single mode and in free cam mode we do not render actor
+        if (g_game->GetIsSingleMode() && !playerController->m_isCameraMode) // If we in single mode and in free cam mode we do not render actor
             return ;
         if (playerController == toPlayer && !playerController->m_isCameraMode) // If we equal to self and in free cam mode we do not render actor
             return ;
@@ -230,29 +230,29 @@ void Actor::Render(PlayerController const* toPlayer) const
         {
             litVerts.reserve(12000);
             AddVertsForRoundedQuad3D(litVerts, topRight, bottomRight, bottomLeft, topLeft, Rgba8::WHITE, uvAtTime);
-            g_theRenderer->SetModelConstants(localToWorldMat, Rgba8::WHITE);
+            g_renderer->SetModelConstants(localToWorldMat, Rgba8::WHITE);
             // g_theRenderer->SetLightConstants(m_map->m_sunDirection, m_map->m_sunIntensity, m_map->m_ambientIntensity);
-            g_theRenderer->SetBlendMode(eBlendMode::OPAQUE);
-            g_theRenderer->SetDepthMode(eDepthMode::READ_WRITE_LESS_EQUAL);
-            g_theRenderer->SetRasterizerMode(eRasterizerMode::SOLID_CULL_BACK);
-            g_theRenderer->SetSamplerMode(eSamplerMode::POINT_CLAMP);
-            g_theRenderer->BindShader(m_definition->m_shader);
-            g_theRenderer->BindTexture(&spriteAtTime.GetTexture());
-            g_theRenderer->DrawVertexArray(litVerts);
+            g_renderer->SetBlendMode(eBlendMode::OPAQUE);
+            g_renderer->SetDepthMode(eDepthMode::READ_WRITE_LESS_EQUAL);
+            g_renderer->SetRasterizerMode(eRasterizerMode::SOLID_CULL_BACK);
+            g_renderer->SetSamplerMode(eSamplerMode::POINT_CLAMP);
+            g_renderer->BindShader(m_definition->m_shader);
+            g_renderer->BindTexture(&spriteAtTime.GetTexture());
+            g_renderer->DrawVertexArray(litVerts);
             return;
         }
 
         litVerts.reserve(12000);
         AddVertsForQuad3D(litVerts, bottomLeft, bottomRight, topLeft, topRight, Rgba8::WHITE, uvAtTime);
-        g_theRenderer->SetModelConstants(localToWorldMat, Rgba8::WHITE);
+        g_renderer->SetModelConstants(localToWorldMat, Rgba8::WHITE);
         // g_theRenderer->SetLightConstants(m_map->m_sunDirection, m_map->m_sunIntensity, m_map->m_ambientIntensity);
-        g_theRenderer->SetBlendMode(eBlendMode::OPAQUE);
-        g_theRenderer->SetDepthMode(eDepthMode::READ_WRITE_LESS_EQUAL);
-        g_theRenderer->SetRasterizerMode(eRasterizerMode::SOLID_CULL_BACK);
-        g_theRenderer->SetSamplerMode(eSamplerMode::POINT_CLAMP);
-        g_theRenderer->BindShader(m_definition->m_shader);
-        g_theRenderer->BindTexture(&spriteAtTime.GetTexture());
-        g_theRenderer->DrawVertexArray(litVerts);
+        g_renderer->SetBlendMode(eBlendMode::OPAQUE);
+        g_renderer->SetDepthMode(eDepthMode::READ_WRITE_LESS_EQUAL);
+        g_renderer->SetRasterizerMode(eRasterizerMode::SOLID_CULL_BACK);
+        g_renderer->SetSamplerMode(eSamplerMode::POINT_CLAMP);
+        g_renderer->BindShader(m_definition->m_shader);
+        g_renderer->BindTexture(&spriteAtTime.GetTexture());
+        g_renderer->DrawVertexArray(litVerts);
         return;
     }
     else
@@ -276,15 +276,15 @@ void Actor::Render(PlayerController const* toPlayer) const
         {
             unlitVerts.reserve(12000);
             AddVertsForQuad3D(unlitVerts, bottomLeft, bottomRight, topLeft, topRight, Rgba8::WHITE, uvAtTime);
-            g_theRenderer->SetModelConstants(localToWorldMat, Rgba8::WHITE);
-            g_theRenderer->SetBlendMode(eBlendMode::OPAQUE);
-            g_theRenderer->SetDepthMode(eDepthMode::READ_WRITE_LESS_EQUAL);
-            g_theRenderer->SetRasterizerMode(eRasterizerMode::SOLID_CULL_NONE);
+            g_renderer->SetModelConstants(localToWorldMat, Rgba8::WHITE);
+            g_renderer->SetBlendMode(eBlendMode::OPAQUE);
+            g_renderer->SetDepthMode(eDepthMode::READ_WRITE_LESS_EQUAL);
+            g_renderer->SetRasterizerMode(eRasterizerMode::SOLID_CULL_NONE);
             // g_theRenderer->SetRasterizerMode(eRasterizerMode::SOLID_CULL_BACK);
-            g_theRenderer->SetSamplerMode(eSamplerMode::POINT_CLAMP);
-            g_theRenderer->BindShader(m_definition->m_shader);
-            g_theRenderer->BindTexture(&spriteAtTime.GetTexture());
-            g_theRenderer->DrawVertexArray(unlitVerts);
+            g_renderer->SetSamplerMode(eSamplerMode::POINT_CLAMP);
+            g_renderer->BindShader(m_definition->m_shader);
+            g_renderer->BindTexture(&spriteAtTime.GetTexture());
+            g_renderer->DrawVertexArray(unlitVerts);
             return;
         }
     }
@@ -422,15 +422,15 @@ void Actor::Damage(int const          damage,
     {
         SoundPlaybackID const playbackID = it->second;
 
-        if (!g_theAudio->IsPlaying(playbackID))
+        if (!g_audio->IsPlaying(playbackID))
         {
-            SoundPlaybackID id = g_theAudio->StartSoundAt(actorDamagedSound, m_position);
+            SoundPlaybackID id = g_audio->StartSoundAt(actorDamagedSound, m_position);
             m_soundPlaybackIDs.insert(std::pair<SoundID, SoundPlaybackID>(id, actorDamagedSound));
         }
     }
     else
     {
-        SoundPlaybackID id = g_theAudio->StartSoundAt(actorDamagedSound, m_position);
+        SoundPlaybackID id = g_audio->StartSoundAt(actorDamagedSound, m_position);
         m_soundPlaybackIDs.insert(std::pair<SoundID, SoundPlaybackID>(id, actorDamagedSound));
     }
 }
@@ -494,7 +494,7 @@ void Actor::OnCollisionEnterWithActor(Actor* other)
         if (m_owner&& !other->m_owner)
         {
             if (m_owner==other)return;
-            int randomDamage = (int)g_theRNG->RollRandomFloatInRange(m_definition->m_damageOnCollide.m_min, m_definition->m_damageOnCollide.m_max);
+            int randomDamage = (int)g_rng->RollRandomFloatInRange(m_definition->m_damageOnCollide.m_min, m_definition->m_damageOnCollide.m_max);
             other->Damage(randomDamage, m_owner->m_handle);
             Vec3 forward, left, right;
             m_orientation.GetAsVectors_IFwd_JLeft_KUp(forward, left, right);
@@ -508,7 +508,7 @@ void Actor::OnCollisionEnterWithActor(Actor* other)
             {
                 return;
             }
-            int randomDamage = (int)g_theRNG->RollRandomFloatInRange(other->m_definition->m_damageOnCollide.m_min, other->m_definition->m_damageOnCollide.m_max);
+            int randomDamage = (int)g_rng->RollRandomFloatInRange(other->m_definition->m_damageOnCollide.m_min, other->m_definition->m_damageOnCollide.m_max);
             Damage(randomDamage, other->m_handle);
             Vec3 forward, left, right;
             other->m_orientation.GetAsVectors_IFwd_JLeft_KUp(forward, left, right);
